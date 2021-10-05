@@ -1,4 +1,4 @@
-import Fetch from "isomorphic-unfetch";
+import fetch from "isomorphic-unfetch";
 import Link from "next/link";
 const index = ({ notes }) => {
   return (
@@ -34,7 +34,7 @@ const index = ({ notes }) => {
                         </Link>
                       </div>
                       <div>
-                        <Link href={`/${note._id}`}>
+                        <Link href={`/${note._id}/edit`}>
                           <button className="flex bg-indigo-300 p-2 rounded-md object-cover hover:shadow-none shadow-lg transition duration-500 ease-in-out hover:bg-indigo-500 text-md">
                             Edit
                           </button>
@@ -53,7 +53,7 @@ const index = ({ notes }) => {
 };
 
 index.getInitialProps = async () => {
-  const res = await Fetch("http://localhost:3000/api/notes");
+  const res = await fetch("http://localhost:3000/api/notes");
   const { data } = await res.json();
   return { notes: data };
 };

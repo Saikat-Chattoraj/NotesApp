@@ -135,31 +135,35 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const Form = ({ handleClose }) => {
+const EditNote = ({ note }) => {
   const classes = useStyles();
   const { handleSubmit, control } = useForm();
   
 const router = useRouter();
 
   const onSubmit = (data) => {
-    createNote(data);
+    updateNote(data);
   };
 
-  const createNote= async (form) => {
-    try{
-       const res = await fetch("http://localhost:3000/api/notes",{
-       method:'POST',
-       headers: {
-         "Accept":"application/json",
-         "Content-Type":"application/json"
-       },
-       body: JSON.stringify(form)
-      })
-      router.push("/");
-  }   catch(error){
-    console.log(error);
-  }
-  }
+  const handleClose = () => {
+    router.push("/")
+  };
+
+  const updateNote = async (form) => {
+    try {
+        const res = await fetch(`http://localhost:3000/api/notes/${router.query.id}`, {
+            method: 'PUT',
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(form)
+        })
+        router.push("/");
+    } catch (error) {
+        console.log(error);
+    }
+}
   return (
     <form className={classes.root} onSubmit={handleSubmit(onSubmit)}>
       <Controller
@@ -206,11 +210,16 @@ const router = useRouter();
           Cancel
         </Button>
         <Button type="submit" variant="contained" color="primary">
-          Create
+          Update
         </Button>
       </div>
     </form>
   );
 };
+EditNote.getInitialProps = async ({ query: { id } }) => {
+    const res = await fetch(`http://localhost:3000/api/notes/${id}`);
+    const { data } = await res.json();
 
-export default Form;
+    return { note: data }
+}
+export default EditNote;
