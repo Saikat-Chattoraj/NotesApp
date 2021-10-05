@@ -1,6 +1,6 @@
-import Link from "next/link";
+/*import Link from "next/link";
 import { useEffect, useState } from "react";
-import Fetch from "isomorphic-unfetch";
+import { useForm, Controller } from 'react-hook-form';
 import { useRouter } from "next/dist/client/router";
 import { TextField, CircularProgress } from "@material-ui/core";
 const NewNote = () => {
@@ -21,14 +21,17 @@ const NewNote = () => {
     }
   },[errors])
 
-  const handleChange = (e) => {
+  const handleSubmit = (e) => {
       e.preventDefault();
       let errs=validate();
       setErrors(errs);
-      setIsSubmitting(true);
+      if(!errors){
+        setIsSubmitting(true);
+        createNote(form)
+      }
   }
 
-  const handleSubmit = (e) => {
+  const handleChange = (e) => {
       setForm({
           ...form,
           [e.target.name]: e.target.value
@@ -47,13 +50,29 @@ const NewNote = () => {
     }
     return err;
   }
-
+  
+  const createNote= async (form) => {
+    try{
+       const res = await Fetch("http://localhost:3000/api/notes",{
+       method:'POST',
+       headers: {
+         "Accept":"application/json",
+         "Content-Type":"application/json"
+       },
+       body: JSON.stringify(form)
+      })
+      router.push("/");
+  }   catch(error){
+    console.log(error);
+  }
+  setIsSubmitting(false);
+  }
   return (
     <div className="flex w-screen h-screen bg-indigo-300">
       {
         isSubmitting ? <CircularProgress  className="place-items-center m-auto flex"/> : (
         
-          <div className="flex flex-col shadow-xl bg-indigo-100 rounded-2xl hover:shadow-sm transition duration-500 place-items-center m-auto w-4/3" onSubmit={handleSubmit}>
+          <div className="flex flex-col shadow-xl bg-indigo-100 rounded-2xl hover:shadow-sm transition duration-500 place-items-center m-auto w-4/3">
             <div className="flex  mt-5 px-24 ">
               <TextField    
                 error={errors.title ? {content:"Please provide a title", pointing:"below"}:null}
@@ -79,7 +98,7 @@ const NewNote = () => {
               />
             </div>
             <div className="flex mt-10 mb-10">
-              <button className="flex px-6 py-4 rounded-lg bg-gradient-to-r from-indigo-600 to-indigo-400 -translate-y-0.5 hover:translate-y-0 duration-300 text-white font-bold font-serif" type="submit">
+              <button className="flex px-6 py-4 rounded-lg bg-gradient-to-r from-indigo-600 to-indigo-400 -translate-y-0.5 hover:translate-y-0 duration-300 text-white font-bold font-serif" type="submit" onClick={handleSubmit}>
                 Post
               </button>
             </div>
@@ -89,4 +108,109 @@ const NewNote = () => {
   );
 };
 
-export default NewNote;
+export default NewNote; */
+import Link from "next/link";
+import { makeStyles } from '@material-ui/core';
+import TextField from '@material-ui/core/TextField';
+import Button from '@material-ui/core/Button';
+import { useForm, Controller } from 'react-hook-form';
+import { useRouter } from "next/dist/client/router";
+import Fetch from "isomorphic-unfetch";
+
+const useStyles = makeStyles(theme => ({
+  root: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: theme.spacing(2),
+
+    '& .MuiTextField-root': {
+      margin: theme.spacing(1),
+      width: '300px',
+    },
+    '& .MuiButtonBase-root': {
+      margin: theme.spacing(2),
+    },
+  },
+}));
+
+const Form = ({ handleClose }) => {
+  const classes = useStyles();
+  const { handleSubmit, control } = useForm();
+  
+const router = useRouter();
+
+  const onSubmit = (data) => {
+    createNote(data);
+  };
+
+  const createNote= async (form) => {
+    try{
+       const res = await Fetch("http://localhost:3000/api/notes",{
+       method:'POST',
+       headers: {
+         "Accept":"application/json",
+         "Content-Type":"application/json"
+       },
+       body: JSON.stringify(form)
+      })
+      router.push("/");
+  }   catch(error){
+    console.log(error);
+  }
+  }
+  return (
+    <form className={classes.root} onSubmit={handleSubmit(onSubmit)}>
+      <Controller
+        name="title"
+        control={control}
+        defaultValue=""
+        render={({ field: { onChange, value }, fieldState: { error } }) => (
+          <TextField
+            label="Title"
+            variant="filled"
+            style={{ width: 500 }}
+                multiline={true}
+                rows={1}
+            value={value}
+            onChange={onChange}
+            error={!!error}
+            helperText={error ? error.message : null}
+          />
+        )}
+        rules={{ required: 'Title required' }}
+      />
+      <Controller
+        name="description"
+        control={control}
+        defaultValue=""
+        render={({ field: { onChange, value }, fieldState: { error } }) => (
+          <TextField
+            label="Description"
+            variant="filled"
+            style={{ width: 500 }}
+                multiline={true}
+                rows={4}
+            value={value}
+            onChange={onChange}
+            error={!!error}
+            helperText={error ? error.message : null}
+          />
+        )}
+        rules={{ required: 'Description required' }}
+      />
+      
+      <div>
+        <Button variant="contained" onClick={handleClose}>
+          Cancel
+        </Button>
+        <Button type="submit" variant="contained" color="primary">
+          Create
+        </Button>
+      </div>
+    </form>
+  );
+};
+
+export default Form;

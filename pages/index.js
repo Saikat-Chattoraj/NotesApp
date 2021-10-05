@@ -15,7 +15,7 @@ const index = ({ notes }) => {
                 return (
                   <div
                     key={note._id}
-                    className="flex flex-col w-full rounded overflow-hidden shadow-md px-14 transform rotate-5 hover:rotate-0 hover:scale-125 hover:transition hover:duration-500 hover:shadow-xl hover:ease-in-out"
+                    className="flex flex-col w-full rounded overflow-hidden shadow-md px-14  hover:rotate-0 hover:scale-125 hover:transition hover:duration-500 hover:shadow-xl hover:ease-in-out"
                   >
                     <div className="flex mt-4 mb-4">
                       <div className="flex text-2xl">
